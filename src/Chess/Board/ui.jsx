@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { map, range } from "lodash";
 import * as utils from "./utils";
-import sprite from "./pieces.svg";
 
 const propTypes = {
   fen: PropTypes.string.isRequired,
@@ -43,7 +42,7 @@ class Component extends React.Component {
           width="100%"
           height="100%"
         >
-          // Draw border as solid background
+          {/* Draw border as solid background */}
           <rect
             x={-1}
             y={-1}
@@ -51,7 +50,7 @@ class Component extends React.Component {
             height="82"
             fill={config.borderColor}
           />
-          // Draw the squares
+          {/* Draw the squares */}
           {map(range(0, 64), squareIndex => {
             return (
               <rect
@@ -67,7 +66,7 @@ class Component extends React.Component {
               />
             );
           })}
-          // Draw Pieces
+          {/* Draw Pieces */}
           {map(pieces, (piece, index) => {
             return (
               <image

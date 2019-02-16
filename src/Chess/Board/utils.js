@@ -57,7 +57,7 @@ export const isWhite = index => {
 export const fenToPieceArray = fen => {
   const pieces = [];
 
-  const fenParts = chain(fen)
+  chain(fen)
     .split(" ")
     .get(0)
     .split("/")
@@ -68,14 +68,11 @@ export const fenToPieceArray = fen => {
 
       forEach(chars, char => {
         const square = 8 * rowIndex + colIndex;
-        switch (true) {
-          case /[p|n|b|r|q|k]/i.test(char):
-            pieces.push({ svg: PIECES[char], square: square });
-            colIndex++;
-            break;
-          case /[1..8]/.test(char):
-            colIndex += parseInt(char, 10);
-            break;
+        if (/[p|n|b|r|q|k]/i.test(char)) {
+          pieces.push({ svg: PIECES[char], square: square });
+          colIndex++;
+        } else {
+          colIndex += parseInt(char, 10);
         }
       });
     })
