@@ -2,9 +2,10 @@ import React from "react";
 import PropTypes from "prop-types";
 import Chess from "chess.js";
 import ChessBoard from "chessboardjsx";
+import Loading from "../../UI/Loading";
 
 const HUMAN = "human";
-const STOCKFISH = "stockish";
+const STOCKFISH = "stockfish";
 
 const propTypes = {
   whitePlayerType: PropTypes.oneOf([HUMAN, STOCKFISH]),
@@ -115,19 +116,29 @@ class Component extends React.Component {
 
   render() {
     const { move, error, computerMove, game, cheat } = this.state;
+    const { whitePlayerType, blackPlayerType } = this.props;
+
+    const humanPlays =
+      (game.turn() === "w" && whitePlayerType === HUMAN) ||
+      (game.turn() === "b" && blackPlayerType === HUMAN);
+
     return (
       <div>
-        <form onSubmit={this.makeHumanMove}>
-          <input
-            name="userInput"
-            placeholder="Submit your move"
-            onChange={this.updateMove}
-            value={move}
-          />
-          <button style={{ display: "none" }} type="submit">
-            Move
-          </button>
-        </form>
+        {humanPlays && <p>Your Move</p>}
+        {!humanPlays && <Loading />}
+        {humanPlays && (
+          <form onSubmit={this.makeHumanMove}>
+            <input
+              name="userInput"
+              placeholder="Submit your move"
+              onChange={this.updateMove}
+              value={move}
+            />
+            <button style={{ display: "none" }} type="submit">
+              Move
+            </button>
+          </form>
+        )}
         <button
           onClick={() => {
             this.setState(state => ({
