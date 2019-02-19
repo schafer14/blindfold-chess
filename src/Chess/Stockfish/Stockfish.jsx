@@ -80,7 +80,6 @@ class Component extends React.Component {
 
   parseMessage = ({ data: message }) => {
     const { engine, game } = this.state;
-    console.log(message);
 
     switch (true) {
       case /^option/.test(message):
