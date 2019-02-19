@@ -3,9 +3,17 @@ import PropTypes from "prop-types";
 import Chess from "chess.js";
 import ChessBoard from "chessboardjsx";
 import Loading from "../../UI/Loading";
+import Radium from "radium";
 
 const HUMAN = "human";
 const STOCKFISH = "stockfish";
+
+const STYLES = {
+  input: {
+    border: 0,
+    caretColor: "red"
+  }
+};
 
 const propTypes = {
   whitePlayerType: PropTypes.oneOf([HUMAN, STOCKFISH]),
@@ -55,6 +63,10 @@ class Component extends React.Component {
     const { whitePlayerType, blackPlayerType } = this.props;
     const whiteToPlay = game.turn() === "w";
 
+    if (game.game_over()) {
+      return;
+    }
+
     if (
       (whiteToPlay && whitePlayerType === STOCKFISH) ||
       (!whiteToPlay && blackPlayerType === STOCKFISH)
@@ -68,6 +80,7 @@ class Component extends React.Component {
 
   parseMessage = ({ data: message }) => {
     const { engine, game } = this.state;
+    console.log(message);
 
     switch (true) {
       case /^option/.test(message):
@@ -83,9 +96,7 @@ class Component extends React.Component {
         this.requestMove();
         break;
       case /^bestmove/.test(message):
-        const matches = message.match(
-          /^bestmove\s([a-z0-9]*)\sponder\s([a-z0-9]*)$/
-        );
+        const matches = message.match(/^bestmove\s([a-z0-9]*)/);
         const move = game.move(matches[1], { sloppy: true });
         this.setState({ game: game, error: null, computerMove: move.san });
         this.requestMove();
@@ -144,8 +155,8 @@ class Component extends React.Component {
           <form onSubmit={this.makeHumanMove}>
             <input
               ref={this.inputRef}
-              name="userInput"
-              placeholder="Submit your move"
+              style={STYLES.input}
+              placeholder="Type your move . . . "
               onChange={this.updateMove}
               value={move}
             />
@@ -196,4 +207,4 @@ class Component extends React.Component {
 Component.propTypes = propTypes;
 Component.defaultProps = defaultProps;
 
-export default Component;
+export default Radium(Component);
