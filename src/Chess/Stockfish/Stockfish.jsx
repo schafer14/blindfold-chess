@@ -20,6 +20,11 @@ const defaultProps = {
 };
 
 class Component extends React.Component {
+  constructor(props) {
+    super(props);
+    this.inputRef = React.createRef();
+  }
+
   state = {
     game: new Chess(),
     move: "",
@@ -56,6 +61,8 @@ class Component extends React.Component {
     ) {
       engine.postMessage(`position fen ${game.fen()}`);
       engine.postMessage("go movetime 5000");
+    } else {
+      this.inputRef.current.focus();
     }
   };
 
@@ -82,7 +89,6 @@ class Component extends React.Component {
         const move = game.move(matches[1], { sloppy: true });
         this.setState({ game: game, error: null, computerMove: move.san });
         this.requestMove();
-        console.info(move);
         break;
       default:
         console.info(message);
@@ -115,12 +121,20 @@ class Component extends React.Component {
   };
 
   render() {
-    const { move, error, computerMove, game, cheat } = this.state;
+    const { move, error, computerMove, game, cheat, showMoves } = this.state;
     const { whitePlayerType, blackPlayerType } = this.props;
 
     const humanPlays =
       (game.turn() === "w" && whitePlayerType === HUMAN) ||
       (game.turn() === "b" && blackPlayerType === HUMAN);
+
+    if (game.game_over()) {
+      return (
+        <div>
+          Game is over. result: <pre>{game.pgn()}</pre>
+        </div>
+      );
+    }
 
     return (
       <div>
@@ -129,6 +143,7 @@ class Component extends React.Component {
         {humanPlays && (
           <form onSubmit={this.makeHumanMove}>
             <input
+              ref={this.inputRef}
               name="userInput"
               placeholder="Submit your move"
               onChange={this.updateMove}
@@ -148,7 +163,29 @@ class Component extends React.Component {
         >
           {cheat ? "Hide" : "Cheat"}
         </button>
+        <button
+          onClick={() => {
+            this.setState(state => ({
+              showMoves: !state.showMoves
+            }));
+          }}
+        >
+          {showMoves ? "Hide Moves" : "Show Moves"}
+        </button>
         {cheat ? <ChessBoard position={game.fen()} /> : null}
+        {showMoves ? (
+          <div>
+            {game
+              .history({ verbose: true })
+              .map((move, number) => {
+                if (move.color === "w") {
+                  return `${number / 2 + 1}. ${move.san}`;
+                }
+                return move.san;
+              })
+              .join(" ")}
+          </div>
+        ) : null}
         {computerMove ? <pre>{computerMove}</pre> : null}
         {error ? <div>{error}</div> : null}
       </div>
